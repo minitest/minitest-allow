@@ -3,5 +3,6 @@ History.rdoc
 Manifest.txt
 README.rdoc
 Rakefile
+allow.yml
 lib/minitest/allow_plugin.rb
 test/minitest/test_allow_plugin.rb
