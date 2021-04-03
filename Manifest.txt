@@ -1,0 +1,7 @@
+.autotest
+History.rdoc
+Manifest.txt
+README.rdoc
+Rakefile
+lib/minitest/allow_plugin.rb
+test/minitest/test_allow_plugin.rb

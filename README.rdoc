@@ -1,0 +1,69 @@
+= minitest-allow
+
+home :: https://github.com/seattlerb/minitest-allow
+rdoc :: http://docs.seattlerb.org/minitest-allow
+
+== DESCRIPTION:
+
+Allows you to provide an exclusion list of allowed failures/errors.
+Failures and errors on this list still get run and reported as usual,
+but do not cause a non-zero exit code. This enables you to have a
+green CI with against a list of known bad tests.
+
+== FEATURES/PROBLEMS:
+
+* Run with `-A path/to/allowed.yml` to generate a list of failing tests.
+* Run with `-a path/to/allowed.yml` to allow listed tests to fail.
+
+== SYNOPSIS:
+
+  % ruby -Ilib test/has_known_bad_tests.rb -a allow.yml; echo $?
+  # or: rake test TESTOPTS="-a allow.yml"
+
+  Run options: -a allow.yml --seed 5200
+
+  # Running:
+
+  ...F...
+
+  Finished in 0.000325s, 3076.9239 runs/s, 3076.9239 assertions/s.
+
+    1) Failure:
+  TestMinitest::TestAllow#test_sanity [test/minitest/test_allow_plugin.rb:8]:
+  write tests or I will kneecap you
+
+  7 runs, 7 assertions, 1 failures, 0 errors, 0 skips
+  0
+
+== REQUIREMENTS:
+
+* minitest 5+
+
+== INSTALL:
+
+* [sudo] gem install minitest-allow
+
+== LICENSE:
+
+(The MIT License)
+
+Copyright (c) Ryan Davis, seattle.rb
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+'Software'), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
