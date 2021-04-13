@@ -1,5 +1,7 @@
 module Minitest
   def self.plugin_allow_options opts, _options # :nodoc:
+    @allow = @allow_save = false
+
     opts.on "-a", "--allow=path", String, "Allow listed tests to fail." do |f|
       require "yaml"
       @allow = YAML.load File.read f
@@ -14,10 +16,10 @@ module Minitest
   def self.plugin_allow_init options # :nodoc:
     if @allow || @allow_save then
       self.reporter.extend Allow
+      self.reporter.allow      = @allow
+      self.reporter.allow_save = @allow_save
+      self.reporter.allow_seen = []
     end
-
-    self.reporter.allow      = @allow      if @allow
-    self.reporter.allow_save = @allow_save if @allow_save
   end
 
   class Result # TODO: push up
@@ -26,10 +28,21 @@ module Minitest
     end
   end
 
+  class Minitest::Test # sigh... rails
+    def full_name
+      "%s#%s" % [self.class, name]
+    end
+  end
+
   module Allow
     VERSION = "1.0.0"
 
-    attr_accessor :allow, :allow_save
+    attr_accessor :allow, :allow_save, :allow_seen
+
+    def record result
+      allow_seen << result.full_name
+      super
+    end
 
     def allow_results
       self.reporters
@@ -39,7 +52,8 @@ module Minitest
 
     def write_allow
       data = allow_results
-        .flat_map { |rs| rs.map(&:full_name) }
+        .flatten
+        .map(&:full_name)
         .uniq
         .sort
 
@@ -47,18 +61,33 @@ module Minitest
     end
 
     def filter_allow
+      maybe_bad = allow_results.flatten.map(&:full_name).uniq
+      to_remove = maybe_bad & allow
+      extra_bad = maybe_bad - to_remove
+
+      self.allow -= to_remove
+
       allow_results.each do |results|
-        results.delete_if { |r| allow.delete r.full_name }
+        results.delete_if { |r| to_remove.include? r.full_name }
+      end
+
+      unless extra_bad.empty? then
+        io.puts
+        io.puts "Bad tests that are NOT allowed:"
+        io.puts
+        io.puts extra_bad.to_yaml
       end
     end
 
     def report_extra_allow
-      unless allow.empty? then
+      good = allow & allow_seen
+
+      unless good.empty? then
         io.puts
         io.puts "Excluded tests that now pass:"
         io.puts
-        allow.each do |name|
-          io.puts "  #{name}"
+        good.each do |name|
+          io.puts "  :allow_good: %p" % [name]
         end
       end
     end
