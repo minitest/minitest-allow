@@ -1,3 +1,10 @@
+=== 1.1.0 / 2021-04-19
+
+* 2 minor enhancements:
+
+  * This works even when running subsets of tests (eg parallel in a CI)
+  * Tracks tests that are allowed yet pass and can thus be removed from allowed list.
+
 === 1.0.0 / 2021-04-02
 
 * 1 major enhancement

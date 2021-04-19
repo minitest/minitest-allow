@@ -35,7 +35,7 @@ module Minitest
   end
 
   module Allow
-    VERSION = "1.0.0"
+    VERSION = "1.1.0"
 
     attr_accessor :allow, :allow_save, :allow_seen
 
