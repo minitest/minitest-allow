@@ -4,7 +4,8 @@ module Minitest
 
     opts.on "-a", "--allow=path", String, "Allow listed tests to fail." do |f|
       require "yaml"
-      @allow = YAML.load File.read f
+      @allow = YAML.load_file(f)
+        .map { |s| s.start_with?("/") ? Regexp.new(s[1..-2]) : s }
     end
 
     opts.on "-A", "--save-allow=path", String, "Save failing tests." do |f|
@@ -61,16 +62,29 @@ module Minitest
     end
 
     def filter_allow
-      maybe_bad = allow_results.flatten.map(&:full_name).uniq
-      to_remove = maybe_bad & allow
-      extra_bad = maybe_bad - to_remove
+      allow_results = self.allow_results
 
-      self.allow -= to_remove
+      # 1. split allow into strings and regexps
+      allowed_REs, allowed_names = allow.partition { |a| Regexp === a }
 
+      allowed_names = allowed_names.map { |x| [x, x] }.to_h
+
+      # 2. remove items from allow_results whose full_name matches the strings
+      # 3. remove items from allow_results whose message matches the regexps
+      hit = {}
       allow_results.each do |results|
-        results.delete_if { |r| to_remove.include? r.full_name }
+        results.delete_if { |r|
+          x = (allowed_names[r.full_name] ||
+               allowed_REs.find { |re| r.failure.message =~ re })
+
+          hit[x] = true if x
+        }
       end
 
+      # 4. remove string and regexps that matched any of the above from allow
+      self.allow -= hit.keys
+
+      extra_bad = allow_results.flatten.map(&:full_name)
       unless extra_bad.empty? then
         io.puts
         io.puts "Bad tests that are NOT allowed:"
@@ -80,13 +94,11 @@ module Minitest
     end
 
     def report_extra_allow
-      good = allow & allow_seen
-
-      unless good.empty? then
+      unless allow.empty? then
         io.puts
         io.puts "Excluded tests that now pass:"
         io.puts
-        good.each do |name|
+        allow.each do |name|
           io.puts "  :allow_good: %p" % [name]
         end
       end

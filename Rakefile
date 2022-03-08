@@ -15,4 +15,12 @@ Hoe.spec "minitest-allow" do
   dependency "minitest", "~> 5.0"
 end
 
+task "test:filtered" do
+  ruby "-Ilib -w test/minitest/test_allow_plugin.rb --allow=allow.yml"
+end
+
+task "test:unfiltered" do
+  ruby "-Ilib -w test/minitest/test_allow_plugin.rb"
+end
+
 # vim: syntax=ruby
