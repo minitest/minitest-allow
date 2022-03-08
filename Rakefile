@@ -15,12 +15,12 @@ Hoe.spec "minitest-allow" do
   dependency "minitest", "~> 5.0"
 end
 
-task "test:filtered" do
-  ruby "-Ilib -w test/minitest/test_allow_plugin.rb --allow=allow.yml"
+Rake.application["test"].clear # hack? is there a better way?
+
+Minitest::TestTask.create "test:filtered" do |t|
+  t.extra_args << "--allow=allow.yml"
 end
 
-task "test:unfiltered" do
-  ruby "-Ilib -w test/minitest/test_allow_plugin.rb"
-end
+Minitest::TestTask.create "test:unfiltered"
 
 # vim: syntax=ruby
