@@ -17,10 +17,14 @@ end
 
 Rake.application["test"].clear # hack? is there a better way?
 
-Minitest::TestTask.create "test:filtered" do |t|
-  t.extra_args << "--allow=allow.yml"
-end
+task :test => "test:filtered"
 
-Minitest::TestTask.create "test:unfiltered"
+namespace "test" do
+  Minitest::TestTask.create "filtered" do |t|
+    t.extra_args << "--allow=allow.yml"
+  end
+
+  Minitest::TestTask.create "unfiltered"
+end
 
 # vim: syntax=ruby
