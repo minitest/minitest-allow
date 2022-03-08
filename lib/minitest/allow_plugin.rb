@@ -5,7 +5,7 @@ module Minitest
     opts.on "-a", "--allow=path", String, "Allow listed tests to fail." do |f|
       require "yaml"
       @allow = YAML.load_file(f)
-        .map { |s| s.start_with?("/") ? Regexp.new(s[1..-2]) : s }
+        .map { |s| String === s && s.start_with?("/") ? Regexp.new(s[1..-2]) : s }
     end
 
     opts.on "-A", "--save-allow=path", String, "Save failing tests." do |f|
@@ -107,7 +107,7 @@ module Minitest
     def passed?
       write_allow        if allow_save
       filter_allow       if allow
-      report_extra_allow if allow
+      report_extra_allow if allow_save
 
       super # CompositeReporter#passed?
     end
