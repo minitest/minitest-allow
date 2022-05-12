@@ -1,3 +1,16 @@
+=== 1.2.0 / 2022-05-12
+
+* 1 major enhancement:
+
+  * The allow file allows for regexps to match errors and names by pattern.
+
+* 5 minor enhancements:
+
+  * Don't print allow fixes unless allow_save
+  * Explicity use psych. Don't ask.
+  * Output of good/bad tests is now in YAML format with easily searchable headers.
+  * Use safe_load_file if it is available and allow Regexps.
+
 === 1.1.0 / 2021-04-19
 
 * 2 minor enhancements:
@@ -10,4 +23,3 @@
 * 1 major enhancement
 
   * Birthday!
-
