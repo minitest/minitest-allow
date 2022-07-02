@@ -1,3 +1,9 @@
+=== 1.2.1 / 2022-07-01
+
+* 1 bug fix:
+
+  * Filter skipped tests from failures.
+
 === 1.2.0 / 2022-05-12
 
 * 1 major enhancement:
