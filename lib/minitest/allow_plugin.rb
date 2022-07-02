@@ -118,6 +118,7 @@ module Minitest
 
       errored, failed = allow_results
         .flatten
+        .reject(&:skipped?)
         .partition { |t| Minitest::UnexpectedError === t.failure }
 
       failed = failed.map(&:full_name)
