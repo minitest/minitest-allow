@@ -1,3 +1,9 @@
+=== 1.2.2 / 2022-08-23
+
+* 1 bug fix:
+
+  * Show skipped tests as good if they're listed in allow file.
+
 === 1.2.1 / 2022-07-01
 
 * 1 bug fix:
