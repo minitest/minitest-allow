@@ -1,3 +1,4 @@
 ---
 - TestMinitest::TestAllow#test_sanity
+- TestMinitest::TestAllow#test_was_bad_now_skip
 - !ruby/regexp /This is bad/

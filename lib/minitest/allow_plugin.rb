@@ -107,7 +107,9 @@ module Minitest
           # if hit by regex, then we want to report it as "good" so
           # the name gets removed from the allow list:
 
-          hit[name] = true if by_name && !by_regx
+          # the same goes for when the test is listed as bad but is now skipped:
+
+          hit[name] = true if by_name && !by_regx && !r.skipped?
 
           by_name || by_regx
         }

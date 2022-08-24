@@ -12,6 +12,11 @@ class TestMinitest::TestAllow < Minitest::Test
     skip "nah"
   end
 
+  def test_was_bad_now_skip
+    skip "nah" if ENV["OLD_BAD"]
+    flunk "nah"
+  end
+
   def test_unknown_bad
     flunk "bad!"
   end if ENV["NEW_BAD"]
