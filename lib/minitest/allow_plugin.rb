@@ -10,7 +10,7 @@ module Minitest
                  Psych.safe_load_file f, permitted_classes: [Regexp]
                else
                  Psych.load_file f
-               end
+               end || []
     end
 
     opts.on "-A", "--save-allow=path", String, "Save failing tests." do |f|
