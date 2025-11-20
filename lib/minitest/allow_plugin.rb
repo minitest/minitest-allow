@@ -1,6 +1,18 @@
 module Minitest
   def self.plugin_allow_options opts, _options # :nodoc:
     @allow = @allow_save = false
+    @run_only = []
+
+    opts.on "-c", "--check=path", String, "Run only the tests listed in the allowed file. Overwrites the current file." do |f|
+      require "psych"
+
+      @run_only = if Psych.respond_to? :safe_load_file
+                    Psych.safe_load_file f, permitted_classes: [Regexp]
+                  else
+                    Psych.load_file f
+                  end || []
+      @allow_save = f
+    end
 
     opts.on "-a", "--allow=path", String, "Allow listed tests to fail." do |f|
       # don't ask why I'm using this specifically:
@@ -26,6 +38,7 @@ module Minitest
       self.reporter.allow_save = @allow_save
       self.reporter.allow_seen = []
     end
+    Minitest::Allow.run_only = @run_only
   end
 
   class Result # TODO: push up
@@ -44,6 +57,10 @@ module Minitest
     VERSION = "1.2.3"
 
     attr_accessor :allow, :allow_save, :allow_seen
+
+    class << self
+      attr_accessor :run_only
+    end
 
     def record result
       allow_seen << result.full_name
@@ -165,3 +182,10 @@ module Minitest
     end
   end
 end
+
+Minitest.singleton_class.prepend(Module.new do
+  def __run reporter, options = {}
+    options[:filter] = Regexp.union(Minitest::Allow.run_only) unless Minitest::Allow.run_only.empty?
+    super
+  end
+end)

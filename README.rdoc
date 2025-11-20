@@ -14,6 +14,7 @@ green CI with against a list of known bad tests.
 
 * Run with `-A path/to/allowed.yml` to generate a list of failing tests.
 * Run with `-a path/to/allowed.yml` to allow listed tests to fail.
+* Run with `-c path/to/allowed.yml` to only run the allowed test, and then regenerate the list.
 
 == SYNOPSIS:
 
