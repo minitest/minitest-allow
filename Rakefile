@@ -12,7 +12,7 @@ Hoe.spec "minitest-allow" do
 
   license "MIT"
 
-  dependency "minitest", "~> 5.0"
+  dependency "minitest", "> 5.0"
 end
 
 Rake.application["test"].clear # hack? is there a better way?

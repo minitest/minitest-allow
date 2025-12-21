@@ -1,6 +1,8 @@
 require "minitest/autorun"
 require "minitest/allow_plugin"
 
+Minitest.load :allow
+
 module TestMinitest; end
 
 class TestMinitest::TestAllow < Minitest::Test
