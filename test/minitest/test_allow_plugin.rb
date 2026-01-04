@@ -1,5 +1,5 @@
 require "minitest/autorun"
-require "minitest/allow_plugin"
+require "minitest/manual_plugins" unless Minitest::VERSION > "6" # so 5.27 and 6.0 can coexist
 
 Minitest.load :allow
 

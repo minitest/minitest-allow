@@ -183,9 +183,15 @@ module Minitest
   end
 end
 
-Minitest.singleton_class.prepend(Module.new do
-  def __run reporter, options = {}
-    options[:filter] = Regexp.union(Minitest::Allow.run_only) unless Minitest::Allow.run_only.empty?
-    super
-  end
-end)
+Minitest.singleton_class
+  .prepend(
+    Module.new do
+      msg = Minitest.respond_to?(:run_all_suites) ? :run_all_suites : :__run
+
+      define_method msg do |reporter, options = {}|
+        options[:filter] = Regexp.union Minitest::Allow.run_only unless
+          Minitest::Allow.run_only.empty?
+        super reporter, options
+      end
+    end
+  )
