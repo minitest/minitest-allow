@@ -1,58 +1,4 @@
 module Minitest
-  def self.plugin_allow_options opts, _options # :nodoc:
-    @allow = @allow_save = false
-    @run_only = []
-
-    opts.on "-c", "--check=path", String, "Run only the tests listed in the allowed file. Overwrites the current file." do |f|
-      require "psych"
-
-      @run_only = if Psych.respond_to? :safe_load_file
-                    Psych.safe_load_file f, permitted_classes: [Regexp]
-                  else
-                    Psych.load_file f
-                  end || []
-      @allow_save = f
-    end
-
-    opts.on "-a", "--allow=path", String, "Allow listed tests to fail." do |f|
-      # don't ask why I'm using this specifically:
-      require "psych"
-
-      @allow = if Psych.respond_to? :safe_load_file then
-                 Psych.safe_load_file f, permitted_classes: [Regexp]
-               else
-                 Psych.load_file f
-               end || []
-    end
-
-    opts.on "-A", "--save-allow=path", String, "Save failing tests." do |f|
-      require "psych"
-      @allow_save = f
-    end
-  end
-
-  def self.plugin_allow_init options # :nodoc:
-    if @allow || @allow_save then
-      self.reporter.extend Allow
-      self.reporter.allow      = @allow
-      self.reporter.allow_save = @allow_save
-      self.reporter.allow_seen = []
-    end
-    Minitest::Allow.run_only = @run_only
-  end
-
-  class Result # TODO: push up
-    def full_name
-      "%s#%s" % [klass, name]
-    end
-  end
-
-  class Minitest::Test # sigh... rails
-    def full_name
-      "%s#%s" % [self.class, name]
-    end
-  end
-
   module Allow
     VERSION = "1.3.0"
 
@@ -181,17 +127,70 @@ module Minitest
       super # CompositeReporter#passed?
     end
   end
-end
 
-Minitest.singleton_class
-  .prepend(
-    Module.new do
-      msg = Minitest.respond_to?(:run_all_suites) ? :run_all_suites : :__run
+  def self.plugin_allow_options opts, _options # :nodoc:
+    @allow = @allow_save = false
+    @run_only = []
 
-      define_method msg do |reporter, options = {}|
-        options[:filter] = Regexp.union Minitest::Allow.run_only unless
-          Minitest::Allow.run_only.empty?
-        super reporter, options
-      end
+    opts.on "-c", "--check=path", String, "Run only the tests listed in the allowed file. Overwrites the current file." do |f|
+      require "psych"
+
+      @run_only = if Psych.respond_to? :safe_load_file
+                    Psych.safe_load_file f, permitted_classes: [Regexp]
+                  else
+                    Psych.load_file f
+                  end || []
+      @allow_save = f
     end
-  )
+
+    opts.on "-a", "--allow=path", String, "Allow listed tests to fail." do |f|
+      # don't ask why I'm using this specifically:
+      require "psych"
+
+      @allow = if Psych.respond_to? :safe_load_file then
+                 Psych.safe_load_file f, permitted_classes: [Regexp]
+               else
+                 Psych.load_file f
+               end || []
+    end
+
+    opts.on "-A", "--save-allow=path", String, "Save failing tests." do |f|
+      require "psych"
+      @allow_save = f
+    end
+  end
+
+  def self.plugin_allow_init options # :nodoc:
+    if @allow || @allow_save then
+      self.reporter.extend Allow
+      self.reporter.allow      = @allow
+      self.reporter.allow_save = @allow_save
+      self.reporter.allow_seen = []
+    end
+    Minitest::Allow.run_only = @run_only
+  end
+
+  class Result # TODO: push up
+    def full_name
+      "%s#%s" % [klass, name]
+    end
+  end
+
+  class Minitest::Test # sigh... rails
+    def full_name
+      "%s#%s" % [self.class, name]
+    end
+  end
+
+  module CheckRunOverride
+    msg = Minitest.respond_to?(:run_all_suites) ? :run_all_suites : :__run
+
+    define_method msg do |reporter, options = {}|
+      options[:filter] = Regexp.union Minitest::Allow.run_only unless
+        Minitest::Allow.run_only.empty?
+      super reporter, options
+    end
+  end
+
+  singleton_class.prepend CheckRunOverride
+end
